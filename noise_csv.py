@@ -2,28 +2,36 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 df = pd.read_csv('output.csv', header=None)
-df.columns = ['hpz', 'hxz', 'hpx', 'hxx']
+df.columns = ['hpz', 'hxz']
 
-dt = 0.00001
+###
+total_time = 1e1
+dt = 0.00005
+Nbinmin = 10
+Nbinmax = 1000
+Nchunks = 15 # Number of chunks
+###
+
 time = [i * dt for i in range(int(len(df)))]
+Nbin = [i for i in range(Nbinmax + 1)]
 
 data1 = df['hpz']
 data2 = df['hxz']
-data3 = df['hpx']
-data4 = df['hxx']
+#data3 = df['hpx']
+#data4 = df['hxx']
 
 #print(data1, data2, data3, data4)
 
 fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
 
-ax.plot(time, data3, data1, label='h_plus_combined')
-ax.plot(time, data4, data2, label='h_x_combined')
-ax.plot(time, 0, data1, alpha = 0.4, label='h_plus_z-axis')
-ax.plot(time, 0, data2, alpha = 0.4, label='h_x_z-axis')
-ax.plot(time, data3, 0, alpha = 0.4, label='h_plus_x-axis')
-ax.plot(time, data4, 0, alpha = 0.4, label='h_x_x-axis')
+later = total_time/(dt * Nchunks)
 
+for i in Nbin:
+    if i >= 10:
+        ax.plot(time, i, data1[(i-10)*later:(i-10)*later+later-1])
+        ax.plot(time, i, data2[(i-10)*later:(i-10)*later+later-1])
+        
 ax.set_xlabel('t[years]')
 ax.set_ylabel('X')
 ax.set_zlabel('Z')

@@ -5,27 +5,21 @@ import random
 Mpc = 5.38552341e20
 
 ###
-total_time = 1e2
-dt = 0.00001
-Nbin = 5000 #random.randint(10, 1001) # Number of galaxies per black hole binary
+total_time = 1e1
+dt = 0.00005
+Nbinmin = 10
+Nbinmax = 1000
 RhoGalaxies = 1/(100 * Mpc ** 3) # Galaxies per Mpc^3
 R = 80 * Mpc
 Nchunks = 15 # Number of chunks
 ###
 
-NGalaxies = int(RhoGalaxies * (4/3) * np.pi * R ** 3)
-print(f"Number of galaxies: {NGalaxies}")
-NBlackHoles = int(NGalaxies/Nbin)
-print(f"Number of black hole binaries: {NBlackHoles}")
-iter = NBlackHoles
-
 G = 6.6743e-11
-c = 3e8
+c = 299792458
 Msun = 1.989e30
 min_mass = 1e5 * Msun # Value in log
 max_mass = 1e10 * Msun # Value in log
 star_radius = 14000
-filename = 'output.csv'
 chunks = int((total_time/dt)/Nchunks)
 
 class Particle():
@@ -95,12 +89,12 @@ masscentry = 0
 def GW(omega, t, R, r, m):
     Amp = (8 * m * omega ** 2 * R ** 2)/r 
     hplusz = -Amp * np.cos(2 * omega * t)
-    hplusx = hplusz/2
+    #hplusx = hplusz/2
     hxz = Amp * np.sin(2 * omega * t)
-    hxx = hxz/2
-    return hplusz, hxz, hplusx, hxx
+    #hxx = hxz/2
+    return hplusz, hxz#, hplusx, hxx
 
-def datacol(my_particles, data1, data2, data3, data4):
+def datacol(my_particles, data1, data2):
     t = 0
     j = 0
 
@@ -109,11 +103,11 @@ def datacol(my_particles, data1, data2, data3, data4):
         if gravity(my_particles, G, dt):
             running = False
         
-        hpz, hxz, hpx, hxx = GW(star1.omega, t, (star1.x - masscentrx), star1.r, star1.mass)
+        hpz, hxz = GW(star1.omega, t, (star1.x - masscentrx), star1.r, star1.mass)
         data1[j] += hpz ** 2
         data2[j] += hxz ** 2
-        data3[j] += hpx ** 2
-        data4[j] += hxx ** 2
+        #data3[j] += hpx ** 2
+        #data4[j] += hxx ** 2
 
         for p in my_particles:
             p.x += p.x_vel * dt
@@ -121,57 +115,66 @@ def datacol(my_particles, data1, data2, data3, data4):
         
         t += dt
         j += 1
-    return data1, data2, data3, data4
+    return data1, data2#, data3, data4
 
 print("Setup done")
-print("Creating black holes")
+for Nbin in range(Nbinmin, Nbinmax + 1):
+    filename = f'outputs/output_{Nbin}.csv'
+    print(f"Starting simulation with {Nbin} galaxies per black hole binary")
+    NGalaxies = int(RhoGalaxies * (4/3) * np.pi * R ** 3)
+    print(f"Number of galaxies: {NGalaxies}")
+    NBlackHoles = int(NGalaxies / Nbin)
+    print(f"Number of black hole binaries: {NBlackHoles}")
+    iter = NBlackHoles
 
-total_particles = []
-for i in range(iter):
-    Mlog = random.uniform(np.log10(min_mass), np.log10(max_mass))
-    M = 10 ** Mlog
-    T = random.uniform(0.5 * 24 * 3600, 2 * 24 * 3600)
-    dist0 = ((T ** 2 * G * 2 * M) / (2 * np.pi ** 2))**(1/3)
-    theta = random.uniform(0, 2 * np.pi)
-    d_obs = random.uniform(0, R)
+    print("Creating black holes")
 
-    star1 = Particle(-np.sin(theta) * (dist0/2), np.cos(theta) * (dist0/2), d_obs, (M * 3)/(4 * np.pi * star_radius ** 3), star_radius, (255, 255, 255), 0)
-    star2 = Particle(-star1.x, -star1.y, d_obs, (M * 3)/(4 * np.pi * star_radius ** 3), star_radius, (255, 255, 255), 0)
- 
-    v0 = np.sqrt((G * star1.mass) / (4 * (dist0)/2))
+    total_particles = []
+    for i in range(iter):
+        Mlog = random.uniform(np.log10(min_mass), np.log10(max_mass))
+        M = 10 ** Mlog
+        T = random.uniform(0.5 * 24 * 3600, 2 * 24 * 3600)
+        dist0 = ((T ** 2 * G * 2 * M) / (2 * np.pi ** 2))**(1/3)
+        theta = random.uniform(0, 2 * np.pi)
+        d_obs = random.uniform(0, R)
+
+        star1 = Particle(-np.sin(theta) * (dist0/2), np.cos(theta) * (dist0/2), d_obs, (M * 3)/(4 * np.pi * star_radius ** 3), star_radius, (255, 255, 255), 0)
+        star2 = Particle(-star1.x, -star1.y, d_obs, (M * 3)/(4 * np.pi * star_radius ** 3), star_radius, (255, 255, 255), 0)
     
-    star1.x_vel = -v0 * np.cos(theta)
-    star1.y_vel = v0 * np.sin(theta)
-    
-    star2.x_vel = -star1.x_vel
-    star2.y_vel = -star1.y_vel
-    
-    my_particles = [star1, star2]
-    total_particles.append(my_particles)
-    if i % 1000000 == 0:
-        print(f"{i}/{iter}")
+        v0 = np.sqrt((G * star1.mass) / (4 * (dist0)/2))
 
-print("Black holes created")
-print("Starting simulation")
+        star1.x_vel = -v0 * np.cos(theta)
+        star1.y_vel = v0 * np.sin(theta)
 
-with open(filename, "w", newline="", encoding="utf-8") as f:
-    writer = csv.writer(f)
-    for i in range(Nchunks):
-        print(f"Starting chunk {i+1}")
-        data1 = [0.0] * chunks
-        data2 = [0.0] * chunks
-        data3 = [0.0] * chunks
-        data4 = [0.0] * chunks
-        for j in range(0, NBlackHoles):
-            print(f"Starting black holes {j+1}/{NBlackHoles}")
-            data1, data2, data3, data4 = datacol(total_particles[j], data1, data2, data3, data4)
-        df = zip(data1, data2, data3, data4)
-        print("Outputting data")
-        for i in range(len(data1)):
-            data1[i] = np.sqrt(data1[i])
-            data2[i] = np.sqrt(data2[i])
-            data3[i] = np.sqrt(data3[i])
-            data4[i] = np.sqrt(data4[i])
-        writer.writerows(df)
+        star2.x_vel = -star1.x_vel
+        star2.y_vel = -star1.y_vel
+
+        my_particles = [star1, star2]
+        total_particles.append(my_particles)
+        if i % 1000000 == 0:
+            print(f"{i}/{iter}")
+
+    print("Black holes created")
+    print("Starting simulation")
+
+    with open(filename, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        for i in range(Nchunks):
+            print(f"Starting chunk {i+1}")
+            data1 = [0.0] * chunks
+            data2 = [0.0] * chunks
+            #data3 = [0.0] * chunks
+            #data4 = [0.0] * chunks
+            for j in range(0, NBlackHoles):
+                print(f"Starting black holes {j+1}/{NBlackHoles}")
+                data1, data2 = datacol(total_particles[j], data1, data2)
+            for i in range(len(data1)):
+                data1[i] = np.sqrt(data1[i])
+                data2[i] = np.sqrt(data2[i])
+                #data3[i] = np.sqrt(data3[i])
+                #data4[i] = np.sqrt(data4[i])
+            df = zip(data1, data2)
+            print("Outputting data")
+            writer.writerows(df)
 
 print("All done")
