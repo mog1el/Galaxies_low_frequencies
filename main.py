@@ -5,13 +5,13 @@ import random
 Mpc = 5.38552341e20
 
 ###
-total_time = 1e1
-dt = 0.00005
+total_time = 1e4
+dt = 0.005
 Nbinmin = 10
 Nbinmax = 1000
 RhoGalaxies = 1/(100 * Mpc ** 3) # Galaxies per Mpc^3
-R = 80 * Mpc
-Nchunks = 15 # Number of chunks
+R = 40 * Mpc
+Nchunks = 1 # Number of chunks
 ###
 
 G = 6.6743e-11
@@ -64,8 +64,8 @@ def gravity(particles, G, dt):
         Ecurr = -G * p1.mass * p2.mass / (dist)
         ENew = Ecurr - Eloss
         rnew = -G * p1.mass * p2.mass / (2 * ENew)
-        scale = rnew /(dist/2)     
-        #print(scale)
+        scale = rnew /(dist/2)
+        #print(scale)     
         p1.x = masscentrx + (p1.x - masscentrx) * scale
         p1.y = masscentry + (p1.y - masscentry) * scale
 
@@ -73,6 +73,7 @@ def gravity(particles, G, dt):
         p2.y = masscentry + (p2.y - masscentry) * scale
 
         scalev = 1 / np.sqrt(scale)
+        #print(scalev)
         p1.x_vel *= scalev
         p1.y_vel *= scalev
         p2.x_vel *= scalev
@@ -90,11 +91,11 @@ def GW(omega, t, R, r, m):
     Amp = (8 * m * omega ** 2 * R ** 2)/r 
     hplusz = -Amp * np.cos(2 * omega * t)
     #hplusx = hplusz/2
-    hxz = Amp * np.sin(2 * omega * t)
+    #hxz = Amp * np.sin(2 * omega * t)
     #hxx = hxz/2
-    return hplusz, hxz#, hplusx, hxx
+    return hplusz#, hxz, hplusx, hxx
 
-def datacol(my_particles, data1, data2):
+def datacol(my_particles, data1):
     t = 0
     j = 0
 
@@ -103,9 +104,9 @@ def datacol(my_particles, data1, data2):
         if gravity(my_particles, G, dt):
             running = False
         
-        hpz, hxz = GW(star1.omega, t, (star1.x - masscentrx), star1.r, star1.mass)
+        hpz = GW(star1.omega, t, (star1.x - masscentrx), star1.r, star1.mass)
         data1[j] += hpz ** 2
-        data2[j] += hxz ** 2
+        #data2[j] += hxz ** 2
         #data3[j] += hpx ** 2
         #data4[j] += hxx ** 2
 
@@ -115,7 +116,7 @@ def datacol(my_particles, data1, data2):
         
         t += dt
         j += 1
-    return data1, data2#, data3, data4
+    return data1#, data2, data3, data4
 
 print("Setup done")
 for Nbin in range(Nbinmin, Nbinmax + 1):
@@ -162,18 +163,18 @@ for Nbin in range(Nbinmin, Nbinmax + 1):
         for i in range(Nchunks):
             print(f"Starting chunk {i+1}")
             data1 = [0.0] * chunks
-            data2 = [0.0] * chunks
+            #data2 = [0.0] * chunks
             #data3 = [0.0] * chunks
             #data4 = [0.0] * chunks
             for j in range(0, NBlackHoles):
                 print(f"Starting black holes {j+1}/{NBlackHoles}")
-                data1, data2 = datacol(total_particles[j], data1, data2)
+                data1 = datacol(total_particles[j], data1)
             for i in range(len(data1)):
                 data1[i] = np.sqrt(data1[i])
-                data2[i] = np.sqrt(data2[i])
+                #data2[i] = np.sqrt(data2[i])
                 #data3[i] = np.sqrt(data3[i])
                 #data4[i] = np.sqrt(data4[i])
-            df = zip(data1, data2)
+            df = zip(data1)
             print("Outputting data")
             writer.writerows(df)
 
