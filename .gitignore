@@ -3,3 +3,4 @@ outputs
 main.cpython-313-x86_64-linux-gnu.so
 main.c
 build/temp.linux-x86_64-cpython-313/main.o
+__pycache__/noise_csv.cpython-313.pyc

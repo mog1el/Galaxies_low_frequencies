@@ -129,7 +129,7 @@ def letsgo(total_time=1e4, dt=5e-3, Nbinmin = 10, Nbinmax = 1000, R = 40, Nchunk
         for i in range(iter):
             Mlog = random.uniform(np.log10(min_mass), np.log10(max_mass))
             M = 10 ** Mlog
-            T = random.uniform(0.5 * 24 * 3600, 2 * 24 * 3600)
+            T = random.uniform(1 * 24 * 3600, 2 * 24 * 3600)
             dist0 = ((T ** 2 * G * 2 * M) / (2 * np.pi ** 2))**(1/3)
             theta = random.uniform(0, 2 * np.pi)
             d_obs = random.uniform(0, R)
