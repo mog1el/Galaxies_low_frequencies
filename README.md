@@ -4,7 +4,7 @@ A project that simulates low frequencies gravitational waves coming from binary 
 
 ---
 
-In order to run the simulation on linux, one must only make running.sh executable by a command `chmod +x running.sh`, while being in the project's folder. Then the rest is to run it using `./running.sh`. In order to change certain constants in the code, you can edit the bash file to accomodate your needs. 
+In order to run the simulation on linux, one must only make running.sh executable by a command `chmod +x running.sh`, while being in the project's folder. Then the rest is to run it using `./running.sh`. In order to change certain constants in the code, you can edit the bash file to accomodate your needs. This ensres that the graph and data in your simulations are the same (important for the time axis.)
 
 Side note: R is a radius that will be later multiplied by Mpc. This means that if you want to get a radius of 8Gpc, write R=8e3. 
 
