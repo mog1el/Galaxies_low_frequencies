@@ -9,7 +9,6 @@ c = 299792458
 Msun = 1.989e30
 min_mass = 1e5 * Msun # Value in log
 max_mass = 1e10 * Msun # Value in log
-star_radius = 14000
 
 class Particle():
     def __init__(self, x, y, r, density, radius, color, omega):
@@ -133,6 +132,7 @@ def letsgo(total_time=1e4, dt=5e-3, Nbinmin = 10, Nbinmax = 1000, R = 40, Nchunk
             dist0 = ((T ** 2 * G * 2 * M) / (2 * np.pi ** 2))**(1/3)
             theta = random.uniform(0, 2 * np.pi)
             d_obs = random.uniform(0, R)
+            star_radius = 2 * G * M / (c ** 2)
     
             star1 = Particle(-np.sin(theta) * (dist0/2), np.cos(theta) * (dist0/2), d_obs, (M * 3)/(4 * np.pi * star_radius ** 3), star_radius, (255, 255, 255), 0)
             star2 = Particle(-star1.x, -star1.y, d_obs, (M * 3)/(4 * np.pi * star_radius ** 3), star_radius, (255, 255, 255), 0)
