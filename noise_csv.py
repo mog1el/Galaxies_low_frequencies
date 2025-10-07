@@ -9,15 +9,15 @@ Nbinmin = 10
 Nbinmax = 1000
 Nchunks = 15 # Number of chunks
 ###
-def plotting(show=False, outputfile='Figure.png', total_time=1e4, dt=5e-3, Nbinmin = 10, Nbinmax = 1000, ylimlow=0, ylimhigh=0.5e38):
+def plotting(show=False, outputfile='Figure.png', total_time=1e4, dt=5e-3, Nbinmin = 10, Nbinmax = 1000, ylimlow=0, ylimhigh=0.5e38, step = 1):
     time = [i * dt for i in range(int(total_time/dt))]
-    Nbin = [i for i in range(Nbinmax + 1)]
+    Nbin = [step * i for i in range(Nbinmax)]
 
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
 
     for i in Nbin:
-        if i >= Nbinmin:
+        if i >= Nbinmin and i <= Nbinmax:
             df = pd.read_csv(f'outputs/output_{i}.csv', header=None)
             df.columns = ['hpz']
             data1 = df['hpz']
