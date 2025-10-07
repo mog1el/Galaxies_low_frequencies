@@ -11,7 +11,7 @@ Nchunks = 15 # Number of chunks
 ###
 def plotting(show=False, outputfile='Figure.png', total_time=1e4, dt=5e-3, Nbinmin = 10, Nbinmax = 1000, ylimlow=0, ylimhigh=0.5e38, step = 1):
     time = [i * dt for i in range(int(total_time/dt))]
-    Nbin = [step * i for i in range(Nbinmax)]
+    Nbin = [10 + step * i for i in range(Nbinmax)]
 
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')

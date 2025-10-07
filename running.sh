@@ -14,7 +14,7 @@ NBINMIN=10
 NBINMAX=1000
 R=40
 NCHUNKS=1
-STEP=10
+STEP=15
 ###
 
 python3 setup.py build_ext --inplace
