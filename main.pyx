@@ -113,7 +113,7 @@ def letsgo(total_time=1e4, dt=5e-3, Nbinmin = 10, Nbinmax = 1000, R = 40, Nchunk
     RhoGalaxies = 1/(100 * Mpc ** 3)
     R = R * Mpc
     chunks = int((total_time/dt)/Nchunks)
-    for Nbin in range(Nbinmin, Nbinmax, step):
+    for Nbin in range(Nbinmin, Nbinmax+1, step):
         filename = f'outputs/output_{Nbin}.csv'
         print(f"Starting simulation with {Nbin} galaxies per black hole binary")
         NGalaxies = int(RhoGalaxies * (4/3) * np.pi * R ** 3)
